@@ -42,15 +42,39 @@ def verif_tab(tab, nb):
             compteur=0
     return False
 
+def verif_tab_bis(tab, nb, pos1, pos2, ratio):
+    #Verif ligne pour nb
+    tab_bis=tab
+    joue(tab_bis, pos1[1]//ratio, pos1[0]//ratio, pos2[1]//ratio, pos2[0]//ratio)
+    compteur=0
+    for i in range(y):
+        for j in range(x-nb+1):
+            for k in range(1, nb):
+                if tab_bis[i][j]==tab_bis[i][j+k]:
+                    compteur+=1
+            if compteur==nb-1:
+                return True
+            compteur=0
+
+                
+    #Verif colone pour nb
+    
+    for i in range(y-nb+1):
+        for j in range(x):
+            for k in range(1, nb):
+                if tab_bis[i][j]==tab_bis[i+k][j]:
+                    compteur+=1
+            if compteur==nb-1:
+                return True
+            compteur=0
+    return False
+
 def verif_total(tab):
     if verif_tab(tab,5):
-        print(5555)
         return True
     if verif_tab(tab,4):
-        print(4444)
         return True
     if verif_tab(tab,3):
-        print(3333)
         return True
     return False
 
@@ -76,11 +100,12 @@ def joue(tab, x, y, x1, y1):
 
 def init(tab):
     for i in range(len(tab)):
-        fruits.append(pygame.image.load("assets/"+tab[i]+".png"))
+        print(tab[i])
+        fruits.append(pygame.image.load("assets/"+tab[i]+"b.png"))
         fruits[len(fruits)-1].convert_alpha()
         fruits[len(fruits)-1] = pygame.transform.scale(fruits[len(fruits)-1], [ratio, ratio])
 
-def rezi(fond, cadre, rect):
+def rezi(fond, cadre, rect, resolution_x, resolution_y, fruits):
     for i in range(len(tab)):
         fruits[len(fruits)-1] = pygame.transform.scale(fruits[len(fruits)-1], [ratio, ratio])
 
@@ -93,13 +118,13 @@ def rezi(fond, cadre, rect):
 
 
 resolution_x=1280
-resolution_y=720
+resolution_y=780
 pos1=(0,0)
 pos2=(0,0)   
 
 x=10
-y=10
-nb_color=6
+y=8
+nb_color=5
 tab=[0]*y
 for i in range(len(tab)):
     tab[i]=[0]*x
@@ -157,7 +182,7 @@ while launched:
                 else:
                     ratio = resolution_x//x
             
-            rezi(fond, cadre, rect)
+            rezi(fond, cadre, rect,resolution_x, resolution_y, fruits)
         else:
             window_surface.fill(black_color)
             window_surface.blit(fond, [0, 0])
@@ -180,12 +205,14 @@ while launched:
             window_surface.blit(cadre, [ratio*(pos1[0]//ratio), ratio*(pos1[1]//ratio)])
 
         if pos1!=(0,0) and pos2!=(0,0):
-            if (pos1[0]//ratio==pos2[0]//ratio and (pos1[1]//ratio==pos2[1]//ratio+1 or pos1[1]//ratio==pos2[1]//ratio-1)) or (pos1[1]//ratio==pos2[1]//ratio and (pos1[0]//ratio==pos2[0]//ratio+1 or pos1[0]//ratio==pos2[0]//ratio-1)):
+            if ((pos1[0]//ratio==pos2[0]//ratio and (pos1[1]//ratio==pos2[1]//ratio+1 or pos1[1]//ratio==pos2[1]//ratio-1)) or (pos1[1]//ratio==pos2[1]//ratio and (pos1[0]//ratio==pos2[0]//ratio+1 or pos1[0]//ratio==pos2[0]//ratio-1))):
                 joue(tab, pos1[1]//ratio, pos1[0]//ratio, pos2[1]//ratio, pos2[0]//ratio)
             #print(pos1[0]//ratio, pos1[1]//ratio, pos2[0]//ratio, pos2[1]//ratio)
             pos1=(0,0)
             pos2=(0,0)
-        if verif_tab(tab,3):
+        
+        if verif_total(tab):
+
             monter(tab)
             remplir_tab(tab)
 
