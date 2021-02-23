@@ -1,6 +1,6 @@
 from random import *
 import pygame
-import time
+
 def aff_tab():
     for i in range(y):
         for j in range(x):
@@ -13,20 +13,46 @@ def remplir_tab(tab):
             if tab[i][j]==0:
                 tab[i][j]=randint(1,nb_color)
 
-def verif_tab(tab):
-    #Verif ligne pour 3
+def verif_tab(tab, nb):
+    #Verif ligne pour nb
+    compteur=0
     for i in range(y):
-        for j in range(x-2):
-            if tab[i][j]==tab[i][j+1] and tab[i][j]==tab[i][j+2]:
-                tab[i][j], tab[i][j+1], tab[i][j+2] = 0, 0, 0
-                
-    #Verif colone pour 3
-    for i in range(y-2):
-        for j in range(x):
-            if tab[i][j]==tab[i+1][j] and tab[i][j]==tab[i+2][j]:
-                tab[i][j], tab[i+1][j], tab[i+2][j] = 0, 0, 0
-                
+        for j in range(x-nb+1):
+            for k in range(1, nb):
+                if tab[i][j]==tab[i][j+k]:
+                    compteur+=1
+            if compteur==nb-1:
+                for k in range(nb):
+                    tab[i][j+k]=0
+                return True
+            compteur=0
 
+                
+    #Verif colone pour nb
+    
+    for i in range(y-nb+1):
+        for j in range(x):
+            for k in range(1, nb):
+                if tab[i][j]==tab[i+k][j]:
+                    compteur+=1
+            if compteur==nb-1:
+                for k in range(nb):
+                    tab[i+k][j] = 0
+                return True
+            compteur=0
+    return False
+
+def verif_total(tab):
+    if verif_tab(tab,5):
+        print(5555)
+        return True
+    if verif_tab(tab,4):
+        print(4444)
+        return True
+    if verif_tab(tab,3):
+        print(3333)
+        return True
+    return False
 
 def monter(tab):
     for i in range(x):
@@ -54,6 +80,16 @@ def init(tab):
         fruits[len(fruits)-1].convert_alpha()
         fruits[len(fruits)-1] = pygame.transform.scale(fruits[len(fruits)-1], [ratio, ratio])
 
+def rezi(fond, cadre, rect):
+    for i in range(len(tab)):
+        fruits[len(fruits)-1] = pygame.transform.scale(fruits[len(fruits)-1], [ratio, ratio])
+
+    fond = pygame.transform.scale(fond, [resolution_x, resolution_y])
+    cadre = pygame.transform.scale(cadre, [ratio, ratio])
+    rect= pygame.Surface((ratio,ratio))
+    rect.set_alpha(180)
+    rect.fill((17, 70, 105))
+
 
 
 resolution_x=1280
@@ -61,16 +97,15 @@ resolution_y=720
 pos1=(0,0)
 pos2=(0,0)   
 
-x=12
-y=7
-nb_color=5
+x=10
+y=10
+nb_color=6
 tab=[0]*y
 for i in range(len(tab)):
     tab[i]=[0]*x
 remplir_tab(tab)
-
 pygame.init()
-window_surface=pygame.display.set_mode((resolution_x, resolution_y))
+window_surface=pygame.display.set_mode((resolution_x, resolution_y),pygame.RESIZABLE)
 
 if resolution_x>resolution_y:
     if x > y:
@@ -106,12 +141,30 @@ while launched:
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             launched=False
+        
+        elif event.type == pygame.VIDEORESIZE:
+            resolution_x=window_surface.get_width()
+            resolution_y=window_surface.get_height()
+
+            if resolution_x/x>resolution_y/y:
+                if x > y:
+                    ratio = resolution_y//y
+                else:
+                    ratio = resolution_y//x
+            else:
+                if x > y:
+                    ratio = resolution_x//y
+                else:
+                    ratio = resolution_x//x
+            
+            rezi(fond, cadre, rect)
         else:
-            #window_surface.fill(black_color)
+            window_surface.fill(black_color)
             window_surface.blit(fond, [0, 0])
             for i in range(y):
-                for j in range(x):  
-                    window_surface.blit(rect, (ratio*j, ratio*i))              
+                for j in range(x):
+                    if tab[i][j]!=-1:  
+                        window_surface.blit(rect, (ratio*j, ratio*i))              
                     window_surface.blit(fruits[tab[i][j]-1], [ratio*j, ratio*i])
                     window_surface.blit(fruits[tab[i][j]-1], [ratio*j, ratio*i])
                     #pygame.draw.line(window_surface, (200, 200, 200), (0, ratio*i), (resolution_x, ratio*i))
@@ -132,7 +185,8 @@ while launched:
             #print(pos1[0]//ratio, pos1[1]//ratio, pos2[0]//ratio, pos2[1]//ratio)
             pos1=(0,0)
             pos2=(0,0)
-        verif_tab(tab)
-        monter(tab)
-        remplir_tab(tab)
+        if verif_tab(tab,3):
+            monter(tab)
+            remplir_tab(tab)
+
     pygame.display.flip()
